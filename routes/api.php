@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\OdooController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\CourierPriceListsController;
+use App\Http\Controllers\Api\CustomersController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -135,4 +136,11 @@ Route::prefix('odoo')->group(function () {
     Route::post('/courier-price-lists',      [CourierPriceListsController::class, 'store']);
     Route::put('/courier-price-lists/{id}',  [CourierPriceListsController::class, 'update']);
     Route::delete('/courier-price-lists/{id}', [CourierPriceListsController::class, 'destroy']);
+});
+
+
+// Routes untuk Courier Price Lists
+Route::prefix('odoo')->group(function () {
+    Route::get('/customers',       [CustomersController::class, 'index']);
+    Route::get('/customers/{id}',  [CustomersController::class, 'show']);
 });
