@@ -1,0 +1,138 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\OdooController;
+use App\Http\Controllers\Api\StudentController;
+use App\Http\Controllers\Api\CourierPriceListsController;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+
+
+
+// GET http://localhost:8000/api/odoo/try-db
+Route::get('/odoo/try-db', function () {
+    $databases = [
+        'edu-wpc',
+        'edu-student4',
+        'edu_student4',
+        'eduwpc',
+    ];
+
+    $results = [];
+
+    foreach ($databases as $db) {
+        $xml = '<?xml version="1.0"?>
+        <methodCall>
+            <methodName>authenticate</methodName>
+            <params>
+                <param><value><string>' . $db . '</string></value></param>
+                <param><value><string>aristya.r@outlook.com</string></value></param>
+                <param><value><string>P@ssw0rdAr123</string></value></param>
+                <param><value><array><data></data></array></value></param>
+            </params>
+        </methodCall>';
+
+        $ch = curl_init('https://edu-wpc.odoo.com/xmlrpc/2/common');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/xml']);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        // Cek apakah dapat UID (angka) atau false
+        preg_match('/<int>(\d+)<\/int>/', $response, $match);
+        preg_match('/<boolean>(\d)<\/boolean>/', $response, $boolMatch);
+
+        $results[$db] = [
+            'uid'    => $match[1]  ?? null,
+            'result' => $boolMatch[1] ?? null,
+            'raw'    => $response,
+        ];
+    }
+
+    return response()->json($results);
+});
+
+
+// GET http://localhost:8000/api/odoo/debug-auth
+Route::get('/odoo/debug-auth', function () {
+    $databases = ['edu-wpc', 'edu-student4', 'edu_wpc', 'eduwpc'];
+    $passwords = ['1111', 'P@ssw0rdAr123'];
+    $user = 'aristya.r@outlook.com';
+    
+    $results = [];
+
+    foreach ($databases as $db) {
+        foreach ($passwords as $pass) {
+            $xml = '<?xml version="1.0"?>
+            <methodCall>
+                <methodName>authenticate</methodName>
+                <params>
+                    <param><value><string>' . $db . '</string></value></param>
+                    <param><value><string>' . $user . '</string></value></param>
+                    <param><value><string>' . $pass . '</string></value></param>
+                    <param><value><array><data></data></array></value></param>
+                </params>
+            </methodCall>';
+
+            $ch = curl_init('https://edu-wpc.odoo.com/xmlrpc/2/common');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/xml']);
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            preg_match('/<int>(\d+)<\/int>/', $response, $intMatch);
+            preg_match('/<boolean>(\d)<\/boolean>/', $response, $boolMatch);
+
+            $results["{$db} | pass:{$pass}"] = [
+                'uid'     => $intMatch[1]  ?? null,
+                'boolean' => $boolMatch[1] ?? null,
+                'raw'     => $response,
+            ];
+        }
+    }
+
+    return response()->json($results, 200, [], JSON_PRETTY_PRINT);
+});
+
+
+
+// Routes Test Connection API untuk Odoo
+Route::prefix('odoo')->group(function () {
+    // Test koneksi
+    Route::get('/ping', [OdooController::class, 'ping']);
+    // Generic query (akses model Odoo apa saja)
+    Route::post('/query', [OdooController::class, 'query']);
+    // Students / Partners
+    // Route::get('/students',          [StudentController::class, 'students']);
+    // Route::get('/students/{id}',     [OdooController::class, 'showStudent']);
+    // Route::post('/students',         [OdooController::class, 'createStudent']);
+    // Route::put('/students/{id}',     [OdooController::class, 'updateStudent']);
+    // Route::delete('/students/{id}',  [OdooController::class, 'deleteStudent']);
+
+    Route::get('/students',          [StudentController::class, 'students']);
+    Route::get('/students/{id}',     [StudentController::class, 'showStudent']);
+    Route::post('/students',         [StudentController::class, 'storeStudent']);
+    Route::put('/students/{id}',     [StudentController::class, 'updateStudent']);
+    Route::delete('/students/{id}',  [StudentController::class, 'destroyStudent']);
+ 
+});
+
+// Routes untuk Courier Price Lists
+Route::prefix('odoo')->group(function () {
+    Route::get('/courier-price-lists',       [CourierPriceListsController::class, 'index']);
+    Route::get('/courier-price-lists/{id}',  [CourierPriceListsController::class, 'show']);
+    Route::post('/courier-price-lists',      [CourierPriceListsController::class, 'store']);
+    Route::put('/courier-price-lists/{id}',  [CourierPriceListsController::class, 'update']);
+    Route::delete('/courier-price-lists/{id}', [CourierPriceListsController::class, 'destroy']);
+});
