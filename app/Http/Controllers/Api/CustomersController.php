@@ -88,7 +88,7 @@ class CustomersController extends Controller
             );
 
             if (empty($records)) {
-                return ApiResponse::error('Courier Price List not found', [
+                return ApiResponse::error('Customer not found', [
                     'id' => ['Data with that ID is not available']
                 ], 404);
             }
