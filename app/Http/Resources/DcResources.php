@@ -14,7 +14,7 @@ class DcResources extends JsonResource
         return [
             // Identity
             'id'          => $data['id']          ?? null,
-            'dc_code'     => $data['ref']   ?? null,
+            'dc_code'     => $data['x_dc_code']   ?? null,
             'dc_name'     => $data['name']         ?? null,
             'customer_id' => $data['parent_id'][0] ?? null,
             'customer_name' => $data['parent_id'][1] ?? null,
