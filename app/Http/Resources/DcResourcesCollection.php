@@ -4,12 +4,10 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use App\Http\Resources\CustomersResources;
 
-class CustomersResourcesCollection extends ResourceCollection
+class DcResourcesCollection extends ResourceCollection
 {
-   // ✅ Tambah ini - paksa pakai CustomersResources
-    public $collects = CustomersResources::class;
+    public $collects = DcResources::class;
 
     protected int $total;
     protected int $limit;
@@ -38,9 +36,21 @@ class CustomersResourcesCollection extends ResourceCollection
             ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset - $limit])
             : null;
 
+        // return [
+        //     'data'       => DcResources::collection($this->collection),
+        //     'pagination' => [
+        //         'total'         => $this->total,
+        //         'per_page'      => $limit,
+        //         'current_page'  => $currentPage,
+        //         'last_page'     => $lastPage,
+        //         'next_page_url' => $nextPage,
+        //         'prev_page_url' => $prevPage,
+        //     ],
+        // ];
+
         return [
-            'data'       => CustomersResources::collection($this->collection),
-            'Data Customers' => [
+            'data'   => DcResources::collection($this->collection),
+            'data DC' => [
                 'total'         => $this->total,
                 // 'per_page'      => $limit,
                 // 'current_page'  => $currentPage,

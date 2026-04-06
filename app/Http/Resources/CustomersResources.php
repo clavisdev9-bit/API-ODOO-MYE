@@ -47,6 +47,11 @@ class CustomersResources extends JsonResource
 
     // Status
     'active' => $data['active'] ?? null,
+    'remark_1' => $data['remark_1'] ?? null,
+    'remark_2' => $data['remark_2'] ?? null,
+    'remark_3' => $data['remark_3'] ?? null,
+    'remark_4' => $data['remark_4'] ?? null,
+    'remark_5' => $data['remark_5'] ?? null,
 
     // Timestamp
     'created_at' => $data['create_date'] ?? null,

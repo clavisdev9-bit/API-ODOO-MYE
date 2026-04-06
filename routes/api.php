@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\OdooController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\CourierPriceListsController;
 use App\Http\Controllers\Api\CustomersController;
+use App\Http\Controllers\Api\DcController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -141,6 +142,15 @@ Route::prefix('odoo')->group(function () {
 
 // Routes untuk Courier Price Lists
 Route::prefix('odoo')->group(function () {
+    // Customers
     Route::get('/customers',       [CustomersController::class, 'index']);
     Route::get('/customers/{id}',  [CustomersController::class, 'show']);
+      // filter  customer  by DC (opsional, alternatif query param)
+    Route::get('customers/{id}/dc',      [DCController::class, 'byCustomer']);
+
+    // DC
+    Route::get('dc',      [DcController::class, 'index']);
+    Route::get('dc/{id}', [DcController::class, 'show']);
+    // filter DC by customer (opsional, alternatif query param)
+    Route::get('customers/{id}/dc', [DcController::class, 'index']);
 });
