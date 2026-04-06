@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\OdooController;
 use App\Http\Controllers\Api\StudentController;
-use App\Http\Controllers\Api\CourierPriceListsController;
+use App\Http\Controllers\Api\CourierPriceListController;
 use App\Http\Controllers\Api\CustomersController;
 use App\Http\Controllers\Api\DcController;
 
@@ -130,14 +130,6 @@ Route::prefix('odoo')->group(function () {
  
 });
 
-// Routes untuk Courier Price Lists
-Route::prefix('odoo')->group(function () {
-    Route::get('/courier-price-lists',       [CourierPriceListsController::class, 'index']);
-    Route::get('/courier-price-lists/{id}',  [CourierPriceListsController::class, 'show']);
-    Route::post('/courier-price-lists',      [CourierPriceListsController::class, 'store']);
-    Route::put('/courier-price-lists/{id}',  [CourierPriceListsController::class, 'update']);
-    Route::delete('/courier-price-lists/{id}', [CourierPriceListsController::class, 'destroy']);
-});
 
 
 // Routes untuk Courier Price Lists
@@ -153,4 +145,8 @@ Route::prefix('odoo')->group(function () {
     Route::get('dc/{id}', [DcController::class, 'show']);
     // filter DC by customer (opsional, alternatif query param)
     Route::get('customers/{id}/dc', [DcController::class, 'index']);
+
+     // Courier Price List
+    Route::get('courier-price-list',      [CourierPriceListController::class, 'index']);
+    Route::get('courier-price-list/{id}', [CourierPriceListController::class, 'show']);
 });

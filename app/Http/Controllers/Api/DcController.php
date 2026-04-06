@@ -3,34 +3,30 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Resources\DcResources;
-use App\Http\Resources\DcResourcesCollection;
-use App\Http\Requests\DcRequestValidationIndex;
+use App\Http\Resources\DCResources;
+use App\Http\Resources\DCResourcesCollection;
+use App\Http\Requests\DCRequestValidationIndex;
 use App\Helpers\ApiResponse;
 use App\Services\OdooService;
 
-class DcController extends Controller
+class DCController extends Controller
 {
-  public function __construct(protected OdooService $odoo) {}
+    public function __construct(protected OdooService $odoo) {}
 
-    public function index(DcRequestValidationIndex $request)
+    public function index(DCRequestValidationIndex $request)
     {
-        $validated = $request->validated();
-
-        $search      = $validated['search']      ?? null;
-        $customerId  = $validated['customer_id'] ?? null;
-        $limit       = is_numeric($validated['limit']  ?? null) ? (int) $validated['limit']  : 10;
-        $offset      = is_numeric($validated['offset'] ?? null) ? (int) $validated['offset'] : 0;
+        $validated  = $request->validated();
+        $search     = $validated['search']      ?? null;
+        $customerId = $validated['customer_id'] ?? null;
+       
 
         $domain = [
-            ['parent_id', '!=', false],
-            ['x_dc_code', '!=', false],
-            ['active',    '=',  true],
+            ['customer_rank', '>', 0],
+            ['active', '=', true],
         ];
 
         if (!empty($customerId)) {
-            $domain[] = ['parent_id', '=', (int) $customerId];
+            $domain[] = ['id', '=', (int) $customerId];
         }
 
         if (!empty($search)) {
@@ -47,7 +43,7 @@ class DcController extends Controller
             $domain,
             [
                 'id', 'name', 'ref', 'parent_id',
-                'x_dc_code','x_dc_area',
+                'x_dc_code', 'x_dc_area',
                 'x_min_lead_day', 'x_max_lead_day',
                 'x_approved_by', 'x_approved_at',
                 'street', 'street2', 'city', 'zip',
@@ -57,17 +53,23 @@ class DcController extends Controller
                 'phone', 'mobile',
                 'active', 'create_date', 'write_date',
             ],
-            $limit,
-            $offset
+            
         );
 
         $message = empty($records) ? 'Data yang Anda cari tidak ditemukan' : 'Success';
 
+        // return ApiResponse::paginate(
+        //     new DCResourcesCollection($records, $total, $limit, $offset),
+        //     $message
+        // );
+
         return ApiResponse::success(
-            new DcResourcesCollection($records, count($records), 0, 0),
+            new DCResourcesCollection($records, count($records), 0, 0),
             $message
         );
     }
+
+
 
     public function show(int $id)
     {
@@ -94,76 +96,66 @@ class DcController extends Controller
             ], 404);
         }
 
-        // pastikan record ini memang DC (punya parent & dc_code)
-        if (empty($records[0]['parent_id']) || empty($records[0]['x_dc_code'])) {
-            return ApiResponse::error('DC not found', [
-                'id' => ['Data with that ID is not a DC record']
-            ], 404);
-        }
-
         return ApiResponse::success(
-            new DcResources($records[0]),
+            new DCResources($records[0]),
             'Success, take the detailed DC',
             200
         );
     }
 
-    public function byCustomer(int $customerId, DcRequestValidationIndex $request)
-{
-    $validated = $request->validated();
+    public function byCustomer(int $customerId, DCRequestValidationIndex $request)
+    {
+        $validated = $request->validated();
+        $search    = $validated['search'] ?? null;
+        $limit     = is_numeric($validated['limit']  ?? null) ? (int) $validated['limit']  : 10;
+        $offset    = is_numeric($validated['offset'] ?? null) ? (int) $validated['offset'] : 0;
 
-    $search = $validated['search'] ?? null;
-    $limit  = is_numeric($validated['limit']  ?? null) ? (int) $validated['limit']  : 10;
-    $offset = is_numeric($validated['offset'] ?? null) ? (int) $validated['offset'] : 0;
+        $customer = $this->odoo->read('res.partner', [$customerId], ['id', 'name', 'customer_rank']);
 
-    // pastikan customer-nya exist dulu
-    $customer = $this->odoo->read('res.partner', [$customerId], ['id', 'name', 'customer_rank']);
+        if (empty($customer) || ($customer[0]['customer_rank'] ?? 0) === 0) {
+            return ApiResponse::error('Customer not found', [
+                'id' => ['Data with that ID is not available']
+            ], 404);
+        }
 
-    if (empty($customer) || ($customer[0]['customer_rank'] ?? 0) === 0) {
-        return ApiResponse::error('Customer not found', [
-            'id' => ['Data with that ID is not available']
-        ], 404);
-    }
+        $domain = [
+            ['id', '=', $customerId],
+            ['active', '=', true],
+        ];
 
-    $domain = [
-        ['parent_id', '=', $customerId],
-        ['x_dc_code', '!=', false],
-        ['active',    '=',  true],
-    ];
+        if (!empty($search)) {
+            $domain[] = '|';
+            $domain[] = '|';
+            $domain[] = ['name',      'ilike', $search];
+            $domain[] = ['x_dc_code', 'ilike', $search];
+            $domain[] = ['city',      'ilike', $search];
+        }
 
-    if (!empty($search)) {
-        $domain[] = '|';
-        $domain[] = '|';
-        $domain[] = ['name',      'ilike', $search];
-        $domain[] = ['x_dc_code', 'ilike', $search];
-        $domain[] = ['city',      'ilike', $search];
-    }
+        $total   = $this->odoo->searchCount('res.partner', $domain);
+        $records = $this->odoo->searchRead(
+            'res.partner',
+            $domain,
+            [
+                'id', 'name', 'ref', 'parent_id',
+                'x_dc_code', 'x_dc_area',
+                'x_min_lead_day', 'x_max_lead_day',
+                'x_approved_by', 'x_approved_at',
+                'street', 'street2', 'city', 'zip',
+                'state_id', 'country_id',
+                'contact_address', 'contact_address_complete',
+                'x_pulau', 'x_propinsi', 'x_kecamatan', 'x_kelurahan',
+                'phone', 'mobile',
+                'active', 'create_date', 'write_date',
+            ],
+            $limit,
+            $offset
+        );
 
-    $total   = $this->odoo->searchCount('res.partner', $domain);
-    $records = $this->odoo->searchRead(
-        'res.partner',
-        $domain,
-        [
-            'id', 'name', 'ref', 'parent_id',
-            'x_dc_code', 'x_dc_area',
-            'x_min_lead_day', 'x_max_lead_day',
-            'x_approved_by', 'x_approved_at',
-            'street', 'street2', 'city', 'zip',
-            'state_id', 'country_id',
-            'contact_address', 'contact_address_complete',
-            'x_pulau', 'x_propinsi', 'x_kecamatan', 'x_kelurahan',
-            'phone', 'mobile',
-            'active', 'create_date', 'write_date',
-        ],
-        $limit,
-        $offset
-    );
+        $message = empty($records) ? 'Data yang Anda cari tidak ditemukan' : 'Success';
 
-    $message = empty($records) ? 'Data yang Anda cari tidak ditemukan' : 'Success';
-
-        return ApiResponse::success(
-            new DcResourcesCollection($records, count($records), 0, 0),
+        return ApiResponse::paginate(
+            new DCResourcesCollection($records, $total, $limit, $offset),
             $message
         );
-}
+    }
 }
