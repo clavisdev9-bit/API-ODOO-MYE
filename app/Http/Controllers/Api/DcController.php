@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\DCResources;
-use App\Http\Resources\DCResourcesCollection;
+use App\Http\Resources\DcResources;
+use App\Http\Resources\DcResourcesCollection;
 use App\Http\Requests\DcRequestValidationIndex;
 use App\Helpers\ApiResponse;
 use App\Services\OdooService;
 
-class DCController extends Controller
+class DcController extends Controller
 {
     public function __construct(protected OdooService $odoo) {}
 
-    public function index(DCRequestValidationIndex $request)
+    public function index(DcRequestValidationIndex $request)
     {
         $validated  = $request->validated();
         $search     = $validated['search']      ?? null;
@@ -58,13 +58,9 @@ class DCController extends Controller
 
         $message = empty($records) ? 'Data yang Anda cari tidak ditemukan' : 'Success';
 
-        // return ApiResponse::paginate(
-        //     new DCResourcesCollection($records, $total, $limit, $offset),
-        //     $message
-        // );
 
         return ApiResponse::success(
-            new DCResourcesCollection($records, count($records), 0, 0),
+            new DcResourcesCollection($records, count($records), 0, 0),
             $message
         );
     }
@@ -97,13 +93,13 @@ class DCController extends Controller
         }
 
         return ApiResponse::success(
-            new DCResources($records[0]),
+            new DcResources($records[0]),
             'Success, take the detailed DC',
             200
         );
     }
 
-    public function byCustomer(int $customerId, DCRequestValidationIndex $request)
+    public function byCustomer(int $customerId, DcRequestValidationIndex $request)
     {
         $validated = $request->validated();
         $search    = $validated['search'] ?? null;
@@ -154,7 +150,7 @@ class DCController extends Controller
         $message = empty($records) ? 'Data yang Anda cari tidak ditemukan' : 'Success';
 
         return ApiResponse::paginate(
-            new DCResourcesCollection($records, $total, $limit, $offset),
+            new DcResourcesCollection($records, $total, $limit, $offset),
             $message
         );
     }
