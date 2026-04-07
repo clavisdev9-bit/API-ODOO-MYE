@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\CourierPriceListController;
 use App\Http\Controllers\Api\CustomersController;
 use App\Http\Controllers\Api\DcController;
+use App\Http\Controllers\Api\InventoryBalanceController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -149,4 +150,8 @@ Route::prefix('odoo')->group(function () {
      // Courier Price List
     Route::get('courier-price-list',      [CourierPriceListController::class, 'index']);
     Route::get('courier-price-list/{id}', [CourierPriceListController::class, 'show']);
+
+    // Inventory Balance
+    Route::get('inventory-balance',      [InventoryBalanceController::class, 'index']);
+    Route::get('inventory-balance/{id}', [InventoryBalanceController::class, 'show']);
 });
