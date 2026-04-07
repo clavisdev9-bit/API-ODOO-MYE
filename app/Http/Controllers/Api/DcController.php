@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DCResources;
 use App\Http\Resources\DCResourcesCollection;
-use App\Http\Requests\DCRequestValidationIndex;
+use App\Http\Requests\DcRequestValidationIndex;
 use App\Helpers\ApiResponse;
 use App\Services\OdooService;
 

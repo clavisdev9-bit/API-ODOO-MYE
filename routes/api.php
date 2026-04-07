@@ -144,7 +144,7 @@ Route::prefix('odoo')->group(function () {
     Route::get('dc',      [DcController::class, 'index']);
     Route::get('dc/{id}', [DcController::class, 'show']);
     // filter DC by customer (opsional, alternatif query param)
-    Route::get('customers/{id}/dc', [DcController::class, 'index']);
+    Route::get('customers/{id}/dc', [DcController::class, 'byCustomer']);
 
      // Courier Price List
     Route::get('courier-price-list',      [CourierPriceListController::class, 'index']);

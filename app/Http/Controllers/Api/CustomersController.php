@@ -8,6 +8,7 @@ use App\Http\Resources\CustomersResources;
 use App\Http\Resources\CustomersResourcesCollection;
 use App\Http\Requests\CustomersRequest;
 use App\Http\Requests\CustomersRequestValidationIndex;
+use App\Http\Requests\DcRequestValidationIndex;
 use App\Helpers\ApiResponse;
 use App\Services\OdooService;
 
