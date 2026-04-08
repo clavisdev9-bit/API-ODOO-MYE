@@ -7,52 +7,61 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class DcResources extends JsonResource
 {
+    private function val($value)
+    {
+        return $value === false ? null : $value;
+    }
+
     public function toArray(Request $request): array
     {
         $data = $this->resource;
 
         return [
             // Identity
-            'id'          => $data['id']          ?? null,
-            'dc_code'     => $data['x_dc_code']   ?? null,
-            'dc_name'     => $data['name']         ?? null,
-            'customer_id' => $data['parent_id'][0] ?? null,
-            'customer_name' => $data['parent_id'][1] ?? null,
+            'id'      => $data['id'] ?? null,
+            'dc_code' => $this->val($data['ref'] ?? null),
+            'dc_name' => $this->val($data['name'] ?? null),
 
-            // Area
-            'area'        => $data['x_dc_area']   ?? null,
-            'city'        => $data['city']         ?? null,
-            'zip'         => $data['zip']          ?? null,
-            'state'       => $data['state_id'][1]  ?? null,
-            'country'     => $data['country_id'][1] ?? null,
+            // Customer (relasi)
+            'customer' => [
+                'id'   => $data['parent_id'][0] ?? null,
+                'name' => $data['parent_id'][1] ?? null,
+            ],
 
-            // Wilayah Indonesia
-            'pulau'       => $data['x_pulau']      ?? null,
-            'propinsi'    => $data['x_propinsi']   ?? null,
-            'kecamatan'   => $data['x_kecamatan']  ?? null,
-            'kelurahan'   => $data['x_kelurahan']  ?? null,
+            // Location
+            'city'    => $this->val($data['city'] ?? null),
+            'zip'     => $this->val($data['zip'] ?? null),
+            'state'   => $this->val($data['state_id'][1] ?? null),
+            'country' => $this->val($data['country_id'][1] ?? null),
 
             // Address
-            'address'     => $data['contact_address_complete'] ?? null,
+            'address' => $this->val($data['contact_address_complete'] ?? null),
 
             // Contact
-            'phone1'      => $data['phone']        ?? null,
-            'phone2'      => $data['mobile']       ?? null,
-
-            // Lead time
-            'min_lead_day' => $data['x_min_lead_day'] ?? null,
-            'max_lead_day' => $data['x_max_lead_day'] ?? null,
-
-            // Approval
-            'approved_by' => $data['x_approved_by'] ?? null,
-            'approved_at' => $data['x_approved_at'] ?? null,
+            'phone'   => $this->val($data['phone'] ?? null),
 
             // Status
-            'active'      => $data['active']       ?? null,
+            'active'  => $data['active'] ?? true,
+
+            'area' => $this->val($data['x_area'] ?? null),
+
+            'min_lead_day' => $this->val($data['x_min_lead_day'] ?? null),
+            'max_lead_day' => $this->val($data['x_max_lead_day'] ?? null),
+
+            'phone2' => $this->val($data['x_phone_2'] ?? null),
+
+            'pulau' => $this->val($data['x_pulau'] ?? null),
+            'propinsi' => $this->val($data['x_propinsi'] ?? null),
+            'kabupaten' => $this->val($data['x_kabupaten'] ?? null),
+            'kecamatan' => $this->val($data['x_kecamatan'] ?? null),
+            'kelurahan' => $this->val($data['x_kelurahan'] ?? null),
+
+            'approved_by' => $this->val($data['x_approved_by'][1] ?? $data['x_approved_by'] ?? null),
+            'approved_at' => $this->val($data['x_approved_at'] ?? null),
 
             // Timestamp
-            'created_at'  => $data['create_date']  ?? null,
-            'updated_at'  => $data['write_date']   ?? null,
+            'created_at' => $data['create_date'] ?? null,
+            'updated_at' => $data['write_date'] ?? null,
         ];
     }
 }

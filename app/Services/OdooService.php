@@ -105,7 +105,8 @@ class OdooService
         string $model,
         array  $domain  = [],
         array  $fields  = [],
-        int    $limit   = 100,
+        // $limit dan $offset untuk pagination (0 = no limit tinggal sesuaikan misal $limit = 10 untuk 10 record per halaman)
+        int    $limit   = 10,
         int    $offset  = 0
     ): array {
         $uid = $this->authenticate();

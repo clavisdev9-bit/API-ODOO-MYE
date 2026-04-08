@@ -28,19 +28,24 @@ class InventoryBalanceResourcesCollection extends ResourceCollection
         $lastPage    = (int) ceil($this->total / $limit);
         $baseUrl     = $request->url();
 
-        return [
-            'data' => InventoryBalanceResources::collection($this->collection),
-            'Inventory Balance Data' => [
+
+         $nextPage = $currentPage < $lastPage
+            ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset + $limit])
+            : null;
+
+        $prevPage = $currentPage > 1
+            ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset - $limit])
+            : null;
+
+         return [
+            'data'       => InventoryBalanceResources::collection($this->collection),
+            'pagination' => [
                 'total'         => $this->total,
-                // 'per_page'      => $limit,
-                // 'current_page'  => $currentPage,
-                // 'last_page'     => $lastPage,
-                // 'next_page_url' => $currentPage < $lastPage
-                //     ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset + $limit])
-                //     : null,
-                // 'prev_page_url' => $currentPage > 1
-                //     ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset - $limit])
-                //     : null,
+                'per_page'      => $limit,
+                'current_page'  => $currentPage,
+                'last_page'     => $lastPage,
+                'next_page_url' => $nextPage,
+                'prev_page_url' => $prevPage,
             ],
         ];
 

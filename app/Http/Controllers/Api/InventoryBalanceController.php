@@ -13,61 +13,61 @@ class InventoryBalanceController extends Controller
 {
     public function __construct(protected OdooService $odoo) {}
 
-    public function index(InventoryBalanceRequestValidationIndex $request)
-    {
-        $validated  = $request->validated();
-        $search     = $validated['search']      ?? null;
-        $locationId = $validated['location_id'] ?? null;
-        // $limit      = is_numeric($validated['limit']  ?? null) ? (int) $validated['limit']  : 10;
-        // $offset     = is_numeric($validated['offset'] ?? null) ? (int) $validated['offset'] : 0;
+  
+public function index(InventoryBalanceRequestValidationIndex $request)
+{
+    $validated  = $request->validated();
+    $search     = $validated['search']      ?? null;
+    $locationId = $validated['location_id'] ?? null;
+    $limit  = is_numeric($validated['limit']  ?? null) ? (int) $validated['limit']  : 10;
+    $offset = is_numeric($validated['offset'] ?? null) ? (int) $validated['offset'] : 0;
 
-        $domain = [
-            ['quantity', '>', 0],
-        ];
+    $domain = [
+        ['quantity', '>', 0],
+    ];
 
-        if (!empty($locationId)) {
-            $domain[] = ['location_id', '=', (int) $locationId];
-        }
+    if (!empty($locationId)) {
+        $domain[] = ['location_id', '=', (int) $locationId];
+    }
 
-        if (!empty($search)) {
-            $domain[] = '|';
-            $domain[] = ['product_id.name',        'ilike', $search];
-            $domain[] = ['product_id.default_code', 'ilike', $search];
-        }
+    if (!empty($search)) {
+        $domain[] = '|';
+        $domain[] = ['product_id.name', 'ilike', $search];
+        $domain[] = ['product_id.default_code', 'ilike', $search];
+    }
 
-        $total   = $this->odoo->searchCount('stock.quant', $domain);
-        $records = $this->odoo->searchRead(
-            'stock.quant',
-            $domain,
-            [
-                'id',
-                'product_id',
-                'product_tmpl_id',
-                'location_id',
-                'quantity',
-                'reserved_quantity',
-                'available_quantity',
-            ],
-            // $limit,
-            // $offset
-        );
+    //  ambil total
+    $total = $this->odoo->searchCount('stock.quant', $domain);
 
-        $records = $this->enrichWithProductData($records);
+    //  ambil semua data
+    $records = $this->odoo->searchRead(
+        'stock.quant',
+        $domain,
+        [
+            'id',
+            'product_id',
+            'product_tmpl_id',
+            'location_id',
+            'quantity',
+            'reserved_quantity',
+            'available_quantity',
+        ],
+         $limit,   
+        $offset 
+    );
 
-        $message = empty($records) ? 'Data yang Anda cari tidak ditemukan' : 'Success';
+    //  enrich
+    $records = $this->enrichWithProductData($records);
 
-        // return ApiResponse::paginate(
-        //     new InventoryBalanceResourcesCollection($records, $total, $limit, $offset),
-        //     $message
-        // );
+    $message = empty($records)
+        ? 'Data yang Anda cari tidak ditemukan'
+        : 'Success';
 
-        return ApiResponse::success(
-            new InventoryBalanceResourcesCollection($records, count($records), 0, 0),
+    return ApiResponse::paginate(
+            new InventoryBalanceResourcesCollection($records, $total, $limit, $offset),
             $message
         );
-
-        
-    }
+}
 
     public function show(int $id)
     {
@@ -98,7 +98,11 @@ class InventoryBalanceController extends Controller
             'Success, take the detailed Inventory Balance',
             200
         );
+
+        
     }
+
+
 
     private function enrichWithProductData(array $records): array
     {

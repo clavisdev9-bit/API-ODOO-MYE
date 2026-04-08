@@ -40,13 +40,13 @@ class CustomersResourcesCollection extends ResourceCollection
 
         return [
             'data'       => CustomersResources::collection($this->collection),
-            'Data Customers' => [
+            'pagination' => [
                 'total'         => $this->total,
-                // 'per_page'      => $limit,
-                // 'current_page'  => $currentPage,
-                // 'last_page'     => $lastPage,
-                // 'next_page_url' => $nextPage,
-                // 'prev_page_url' => $prevPage,
+                'per_page'      => $limit,
+                'current_page'  => $currentPage,
+                'last_page'     => $lastPage,
+                'next_page_url' => $nextPage,
+                'prev_page_url' => $prevPage,
             ],
         ];
     }

@@ -4,10 +4,13 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use App\Http\Resources\InsuranceReportResources;
 
-class DcResourcesCollection extends ResourceCollection
+
+    class InsuranceReportResourcesCollection extends ResourceCollection
 {
-    public $collects = DcResources::class;
+   // ✅ Tambah ini - paksa pakai InsuranceReportResources
+    public $collects = InsuranceReportResources::class;
 
     protected int $total;
     protected int $limit;
@@ -37,7 +40,7 @@ class DcResourcesCollection extends ResourceCollection
             : null;
 
         return [
-            'data'       => DcResources::collection($this->collection),
+            'data'       => InsuranceReportResources::collection($this->collection),
             'pagination' => [
                 'total'         => $this->total,
                 'per_page'      => $limit,
@@ -47,7 +50,6 @@ class DcResourcesCollection extends ResourceCollection
                 'prev_page_url' => $prevPage,
             ],
         ];
-
-       
     }
 }
+

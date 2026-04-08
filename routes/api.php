@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CourierPriceListController;
 use App\Http\Controllers\Api\CustomersController;
 use App\Http\Controllers\Api\DcController;
 use App\Http\Controllers\Api\InventoryBalanceController;
+use App\Http\Controllers\Api\InsuranceReportController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -117,11 +118,6 @@ Route::prefix('odoo')->group(function () {
     // Generic query (akses model Odoo apa saja)
     Route::post('/query', [OdooController::class, 'query']);
     // Students / Partners
-    // Route::get('/students',          [StudentController::class, 'students']);
-    // Route::get('/students/{id}',     [OdooController::class, 'showStudent']);
-    // Route::post('/students',         [OdooController::class, 'createStudent']);
-    // Route::put('/students/{id}',     [OdooController::class, 'updateStudent']);
-    // Route::delete('/students/{id}',  [OdooController::class, 'deleteStudent']);
 
     Route::get('/students',          [StudentController::class, 'students']);
     Route::get('/students/{id}',     [StudentController::class, 'showStudent']);
@@ -154,4 +150,8 @@ Route::prefix('odoo')->group(function () {
     // Inventory Balance
     Route::get('inventory-balance',      [InventoryBalanceController::class, 'index']);
     Route::get('inventory-balance/{id}', [InventoryBalanceController::class, 'show']);
+
+    // Insurance Report
+    Route::get('insurance-report',      [InsuranceReportController::class, 'index']);
+    Route::get('insurance-report/{id}', [InsuranceReportController::class, 'show']);
 });

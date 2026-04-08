@@ -28,17 +28,23 @@ class CourierPriceListResourcesCollection extends ResourceCollection
         $lastPage    = (int) ceil($this->total / $limit);
         $baseUrl     = $request->url();
 
-        
+         $nextPage = $currentPage < $lastPage
+            ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset + $limit])
+            : null;
+
+        $prevPage = $currentPage > 1
+            ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset - $limit])
+            : null;
 
         return [
             'data'       => CourierPriceListResources::collection($this->collection),
-            'Data Courier Price Lists' => [
+            'pagination' => [
                 'total'         => $this->total,
-                // 'per_page'      => $limit,
-                // 'current_page'  => $currentPage,
-                // 'last_page'     => $lastPage,
-                // 'next_page_url' => $nextPage,
-                // 'prev_page_url' => $prevPage,
+                'per_page'      => $limit,
+                'current_page'  => $currentPage,
+                'last_page'     => $lastPage,
+                'next_page_url' => $nextPage,
+                'prev_page_url' => $prevPage,
             ],
         ];
     }

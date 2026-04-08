@@ -18,8 +18,8 @@ class InventoryBalanceResources extends JsonResource
             'product_id'   => $data['product_tmpl_id'][0] ?? null,
             'product_name' => $data['product_tmpl_id'][1] ?? null,
             'product_code' => $data['default_code']       ?? null,
-            'brand'        => $data['x_brand']            ?? null,
-            'std_pack'     => $data['x_std_pack']         ?? null,
+            'brand'        => $data['ref']            ?? null,
+            'std_pack'     => $data['ref']         ?? null,
             'category'     => $data['categ_id'][1]        ?? null,
 
             // Location

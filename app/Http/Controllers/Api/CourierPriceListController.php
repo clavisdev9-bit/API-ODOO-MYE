@@ -20,13 +20,14 @@ class CourierPriceListController extends Controller
         $customerId  = $validated['customer_id'] ?? null;
         $freightType = $validated['freight_type'] ?? null;
         $vendor      = $validated['vendor']      ?? null;
-        // $limit       = is_numeric($validated['limit']  ?? null) ? (int) $validated['limit']  : 10;
-        // $offset      = is_numeric($validated['offset'] ?? null) ? (int) $validated['offset'] : 0;
+        $limit       = is_numeric($validated['limit']  ?? null) ? (int) $validated['limit']  : 10;
+        $offset      = is_numeric($validated['offset'] ?? null) ? (int) $validated['offset'] : 0;
 
         $domain = [
-            ['customer_rank', '>', 0],
-            ['active', '=', true],
-        ];
+    ['customer_rank', '>', 0],
+    ['active', '=', true],
+    ['name', '!=', false],
+];
 
         if (!empty($customerId)) {
             $domain[] = ['id', '=', (int) $customerId];
@@ -46,17 +47,15 @@ class CourierPriceListController extends Controller
                 'id', 'name', 'ref',
                 'contact_address', 'contact_address_complete',
                 'city', 'zip', 'state_id', 'country_id',
-                'x_dc_code', 'x_pulau', 'x_propinsi',
-                'x_kecamatan', 'x_kelurahan',
             ],
-            // $limit,
-            // $offset
+            $limit,
+            $offset
         );
 
         $message = empty($records) ? 'Data yang Anda cari tidak ditemukan' : 'Success';
 
-         return ApiResponse::success(
-            new CourierPriceListResourcesCollection($records, count($records), 0, 0),
+        return ApiResponse::paginate(
+            new CourierPriceListResourcesCollection($records, $total, $limit, $offset),
             $message
         );
     }
@@ -70,8 +69,8 @@ class CourierPriceListController extends Controller
                 'id', 'name', 'ref',
                 'contact_address', 'contact_address_complete',
                 'city', 'zip', 'state_id', 'country_id',
-                'x_dc_code', 'x_pulau', 'x_propinsi',
-                'x_kecamatan', 'x_kelurahan',
+                // 'x_dc_code', 'x_pulau', 'x_propinsi',
+                // 'x_kecamatan', 'x_kelurahan',
             ]
         );
 
