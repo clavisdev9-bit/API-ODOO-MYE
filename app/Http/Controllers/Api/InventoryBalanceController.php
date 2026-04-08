@@ -44,13 +44,17 @@ public function index(InventoryBalanceRequestValidationIndex $request)
         'stock.quant',
         $domain,
         [
-            'id',
-            'product_id',
-            'product_tmpl_id',
-            'location_id',
-            'quantity',
-            'reserved_quantity',
-            'available_quantity',
+                 'id',
+                'product_id',
+                'product_tmpl_id',
+                'location_id',
+                'quantity',
+                'reserved_quantity',
+                'available_quantity',
+                // 'x_studio_brand',
+                // 'property_stock_inventory',
+                // 'default_code',
+                // 'qty_available',
         ],
          $limit,   
         $offset 
@@ -75,13 +79,17 @@ public function index(InventoryBalanceRequestValidationIndex $request)
             'stock.quant',
             [$id],
             [
-                'id',
+                  'id',
                 'product_id',
                 'product_tmpl_id',
                 'location_id',
                 'quantity',
                 'reserved_quantity',
                 'available_quantity',
+                // 'x_studio_brand',
+                // 'property_stock_inventory',
+                // 'default_code',
+                // 'qty_available',
             ]
         );
 

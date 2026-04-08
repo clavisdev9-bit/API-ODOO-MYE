@@ -9,12 +9,11 @@ use App\Http\Controllers\Api\CustomersController;
 use App\Http\Controllers\Api\DcController;
 use App\Http\Controllers\Api\InventoryBalanceController;
 use App\Http\Controllers\Api\InsuranceReportController;
+use App\Http\Controllers\Api\StatutorySalesReportController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
-
-
 
 
 // GET http://localhost:8000/api/odoo/try-db
@@ -154,4 +153,9 @@ Route::prefix('odoo')->group(function () {
     // Insurance Report
     Route::get('insurance-report',      [InsuranceReportController::class, 'index']);
     Route::get('insurance-report/{id}', [InsuranceReportController::class, 'show']);
+
+    // Statutory Sales Report
+
+        Route::get('statutory-sales-report',      [StatutorySalesReportController::class, 'index']);
+        // Route::get('statutory-sales-report/{id}', [StatutorySalesReportController::class, 'show']);
 });

@@ -24,10 +24,10 @@ class CourierPriceListController extends Controller
         $offset      = is_numeric($validated['offset'] ?? null) ? (int) $validated['offset'] : 0;
 
         $domain = [
-    ['customer_rank', '>', 0],
-    ['active', '=', true],
-    ['name', '!=', false],
-];
+            ['customer_rank', '>', 0],
+            ['active', '=', true],
+            ['name', '!=', false],
+        ];
 
         if (!empty($customerId)) {
             $domain[] = ['id', '=', (int) $customerId];
