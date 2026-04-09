@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\DcController;
 use App\Http\Controllers\Api\InventoryBalanceController;
 use App\Http\Controllers\Api\InsuranceReportController;
 use App\Http\Controllers\Api\StatutorySalesReportController;
+use App\Http\Controllers\Api\PodHandOverController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -157,4 +158,8 @@ Route::prefix('odoo')->group(function () {
     // Statutory Sales Report
     Route::get('statutory-sales-report',      [StatutorySalesReportController::class, 'index']);
     Route::get('statutory-sales-report/detail', [StatutorySalesReportController::class, 'show']);
+
+    //POD Hand Over
+    Route::get('pod-hand-over',      [PodHandOverController::class, 'index']);
+    Route::get('pod-hand-over/detail', [PodHandOverController::class, 'detail']);
 });
