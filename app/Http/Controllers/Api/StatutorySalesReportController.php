@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Http\Requests\StatutorySalesReportRequest;
 use App\Http\Resources\StatutorySalesReportCollection;
 use App\Helpers\ApiResponse;
@@ -233,4 +234,36 @@ class StatutorySalesReportController extends Controller
 
         return $result;
     }
+
+
+   public function show(Request $request)
+{
+    $poName = $request->po_name;
+
+    if (!$poName) {
+        return ApiResponse::error('po_name wajib diisi', 400);
+    }
+
+    $poRecords = $this->odoo->searchRead(
+        'purchase.order',
+        [
+            ['name', '=', $poName],
+            ['state', 'in', ['purchase', 'done']],
+        ],
+        ['id', 'name', 'partner_id', 'date_order'],
+        1,
+        0
+    );
+
+    if (empty($poRecords)) {
+        return ApiResponse::error('Data tidak ditemukan', 404);
+    }
+
+    $po = $poRecords[0];
+
+    $maps = $this->fetchAllData([$po['id']], [$po['name']]);
+    $rows = $this->buildRows([$po], $maps);
+
+    return ApiResponse::success($rows[0], 'Success');
+}
 }

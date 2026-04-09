@@ -155,7 +155,6 @@ Route::prefix('odoo')->group(function () {
     Route::get('insurance-report/{id}', [InsuranceReportController::class, 'show']);
 
     // Statutory Sales Report
-
-        Route::get('statutory-sales-report',      [StatutorySalesReportController::class, 'index']);
-        // Route::get('statutory-sales-report/{id}', [StatutorySalesReportController::class, 'show']);
+    Route::get('statutory-sales-report',      [StatutorySalesReportController::class, 'index']);
+    Route::get('statutory-sales-report/detail', [StatutorySalesReportController::class, 'show']);
 });
