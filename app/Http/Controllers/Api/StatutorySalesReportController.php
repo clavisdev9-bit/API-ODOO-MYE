@@ -16,51 +16,64 @@ class StatutorySalesReportController extends Controller
     {
         $validated = $request->validated();
 
-        $limit  = $validated['limit'];
-        $offset = $validated['offset'];
+        $getAll = $validated['all'] ?? false;
+
+        $limit  = is_numeric($validated['limit'] ?? null) ? (int) $validated['limit'] : 10;
+        $offset = is_numeric($validated['offset'] ?? null) ? (int) $validated['offset'] : 0;
+
+        // ================= DOMAIN =================
+        $domain = [
+            ['state', 'in', ['purchase', 'done']]
+        ];
+
+        // ================= TOTAL =================
+        $total = $this->odoo->searchCount('purchase.order', $domain);
+
+        // ================= MODE =================
+        if ($getAll) {
+            $limit  = 0;
+            $offset = 0;
+        }
 
         // ================= PO =================
-       $poRecords = $this->odoo->searchRead(
-    'purchase.order',
-    [['state', 'in', ['purchase', 'done']]],
-    [
-        'id',
-        'name',
-        'partner_id',
-        'date_order' // ✅ TAMBAH INI
-    ],
-    $limit,
-    $offset
-);
+        $poRecords = $this->odoo->searchRead(
+            'purchase.order',
+            $domain,
+            ['id', 'name', 'partner_id', 'date_order'],
+            $limit,
+            $offset
+        );
 
         if (empty($poRecords)) {
             return ApiResponse::paginate(
-                new StatutorySalesReportCollection([], 0, $limit, $offset),
-                'Tidak ada data'
+                new StatutorySalesReportCollection([], $total, $limit, $offset),
+                'Data yang Anda cari tidak ditemukan'
             );
         }
 
         $poIds   = array_column($poRecords, 'id');
         $poNames = array_column($poRecords, 'name');
 
-        // ================= FETCH ALL =================
+        // ================= FETCH =================
         $maps = $this->fetchAllData($poIds, $poNames);
 
         // ================= BUILD =================
         $rows = $this->buildRows($poRecords, $maps);
 
+        // ================= RESPONSE =================
+        $message = empty($rows)
+            ? 'Data yang Anda cari tidak ditemukan'
+            : 'Success';
+
         return ApiResponse::paginate(
-            new StatutorySalesReportCollection($rows, count($poRecords), $limit, $offset),
-            'Success'
+            new StatutorySalesReportCollection($rows, $total, $limit, $offset),
+            $message
         );
     }
 
-    // =====================================================
-    // FETCH RELASI SESUAI DOKUMEN (INI KUNCI)
-    // =====================================================
+    // ================= FETCH RELATION =================
     private function fetchAllData(array $poIds, array $poNames): array
     {
-        // ================= PO LINE =================
         $poLines = $this->odoo->searchRead(
             'purchase.order.line',
             [['order_id', 'in', $poIds]],
@@ -69,7 +82,6 @@ class StatutorySalesReportController extends Controller
             0
         );
 
-        // ================= GR =================
         $grRecords = $this->odoo->searchRead(
             'stock.picking',
             [
@@ -81,7 +93,6 @@ class StatutorySalesReportController extends Controller
             0
         );
 
-        // ================= PI (Vendor Bill dari PO) =================
         $piRecords = $this->odoo->searchRead(
             'account.move',
             [
@@ -94,14 +105,16 @@ class StatutorySalesReportController extends Controller
             0
         );
 
-        // ================= SO (dari PO) =================
         $soRecords = $this->odoo->searchRead(
             'sale.order',
             [
-                ['client_order_ref', 'in', $poNames],
-                ['state', 'in', ['sale', 'done']],
+                '&',
+                    ['state', 'in', ['sale', 'done']],
+                    '|',
+                        ['client_order_ref', 'in', $poNames],
+                        ['origin', 'in', $poNames],
             ],
-            ['id', 'name', 'client_order_ref'],
+            ['id', 'name', 'client_order_ref', 'origin'],
             0,
             0
         );
@@ -109,7 +122,6 @@ class StatutorySalesReportController extends Controller
         $soIds   = array_column($soRecords, 'id');
         $soNames = array_column($soRecords, 'name');
 
-        // ================= DO =================
         $doRecords = !empty($soIds)
             ? $this->odoo->searchRead(
                 'stock.picking',
@@ -123,7 +135,6 @@ class StatutorySalesReportController extends Controller
             )
             : [];
 
-        // ================= SI (Customer Invoice) =================
         $siRecords = $this->odoo->searchRead(
             'account.move',
             [
@@ -136,14 +147,13 @@ class StatutorySalesReportController extends Controller
             0
         );
 
-        // ================= PAYMENT =================
         $prRecords = $this->odoo->searchRead(
             'account.payment',
             [
-                ['in', $soNames], // biasanya refer ke SO / invoice
+                ['payment_reference', 'in', $soNames],
                 ['state', 'in', ['posted', 'reconciled']],
             ],
-            ['id', 'name', 'amount'],
+            ['id', 'name', 'amount', 'payment_reference'],
             0,
             0
         );
@@ -155,19 +165,19 @@ class StatutorySalesReportController extends Controller
 
             'pi_by_po' => $this->groupBy($piRecords, fn($r) => $r['invoice_origin'] ?? null),
 
-            'so_by_po' => $this->groupBy($soRecords, fn($r) => $r['client_order_ref'] ?? null),
+            'so_by_po' => $this->groupBy($soRecords, fn($r) =>
+                $r['client_order_ref'] ?: $r['origin'] ?: null
+            ),
 
             'do_by_so' => $this->groupBy($doRecords, fn($r) => $r['sale_id'][0] ?? null),
 
             'si_by_so' => $this->groupBy($siRecords, fn($r) => $r['invoice_origin'] ?? null),
 
-            'pr_by_ref' => $this->groupBy($prRecords, fn($r) => $r['ref'] ?? null),
+            'pr_by_ref' => $this->groupBy($prRecords, fn($r) => $r['payment_reference'] ?? null),
         ];
     }
 
-    // =====================================================
-    // BUILD FINAL ROW (ANTI NULL VERSION)
-    // =====================================================
+    // ================= BUILD =================
     private function buildRows(array $poRecords, array $m): array
     {
         $rows = [];
@@ -175,13 +185,13 @@ class StatutorySalesReportController extends Controller
         foreach ($poRecords as $po) {
 
             $poName = $po['name'];
-
-            $so = $m['so_by_po'][$poName][0] ?? null;
+            $so     = $m['so_by_po'][$poName][0] ?? null;
             $soName = $so['name'] ?? null;
 
             $rows[] = [
-            'cust_po_date' => $po['date_order'] ?? null,
-                'customer'   => $po['partner_id'][1] ?? null,
+                'cust_po_no' => $poName,
+                'cust_po_date' => $po['date_order'] ?? null,
+                'customer' => $po['partner_id'][1] ?? null,
 
                 'po_qty' => array_sum(array_column(
                     $m['po_lines'][$po['id']] ?? [],
@@ -189,7 +199,6 @@ class StatutorySalesReportController extends Controller
                 )),
 
                 'gr_no' => $m['gr_by_po'][$po['id']][0]['name'] ?? null,
-
                 'pi_ref_no' => $m['pi_by_po'][$poName][0]['name'] ?? null,
 
                 'so_no' => $soName,
