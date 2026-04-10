@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\InventoryBalanceController;
 use App\Http\Controllers\Api\InsuranceReportController;
 use App\Http\Controllers\Api\StatutorySalesReportController;
 use App\Http\Controllers\Api\PodHandOverController;
+use App\Http\Controllers\Api\OutstandingGrController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -162,4 +163,7 @@ Route::prefix('odoo')->group(function () {
     //POD Hand Over
     Route::get('pod-hand-over',      [PodHandOverController::class, 'index']);
     Route::get('pod-hand-over/detail', [PodHandOverController::class, 'detail']);
+
+    // Outstanding GR
+    Route::get('outstanding-gr', [OutstandingGrController::class, 'index']);
 });
