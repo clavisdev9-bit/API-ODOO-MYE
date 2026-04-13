@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\InsuranceReportController;
 use App\Http\Controllers\Api\StatutorySalesReportController;
 use App\Http\Controllers\Api\PodHandOverController;
 use App\Http\Controllers\Api\OutstandingGrController;
+use App\Http\Controllers\Api\OutstandingDispatchController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -166,4 +168,7 @@ Route::prefix('odoo')->group(function () {
 
     // Outstanding GR
     Route::get('outstanding-gr', [OutstandingGrController::class, 'index']);
+
+    // Outstanding Dispatch
+    Route::get('outstanding-dispatch', [OutstandingDispatchController::class, 'index']);
 });
