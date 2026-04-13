@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\StatutorySalesReportController;
 use App\Http\Controllers\Api\PodHandOverController;
 use App\Http\Controllers\Api\OutstandingGrController;
 use App\Http\Controllers\Api\OutstandingDispatchController;
+use App\Http\Controllers\Api\OutstandingDispatchWithFreightCostController;
 
 
 Route::get('/user', function (Request $request) {
@@ -171,4 +172,7 @@ Route::prefix('odoo')->group(function () {
 
     // Outstanding Dispatch
     Route::get('outstanding-dispatch', [OutstandingDispatchController::class, 'index']);
+
+    // Outstanding Dispatch With Freight Cost
+    Route::get('outstanding-dispatch-with-freight-cost', [OutstandingDispatchWithFreightCostController::class, 'index']);
 });
