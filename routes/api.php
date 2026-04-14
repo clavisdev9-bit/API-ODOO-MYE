@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\OutstandingGrController;
 use App\Http\Controllers\Api\OutstandingDispatchController;
 use App\Http\Controllers\Api\OutstandingDispatchWithFreightCostController;
 use App\Http\Controllers\Api\OutstandingPiController;
+use App\Http\Controllers\Api\OutstandingDoController;
 
 
 Route::get('/user', function (Request $request) {
@@ -179,5 +180,8 @@ Route::prefix('odoo')->group(function () {
 
     // Outstanding PI
     Route::get('outstanding-pi', [OutstandingPiController::class, 'index']);
+
+    // Outstanding DO
+    Route::get('outstanding-do', [OutstandingDoController::class, 'index']);
     
 });
