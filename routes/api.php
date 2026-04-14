@@ -16,6 +16,9 @@ use App\Http\Controllers\Api\OutstandingDispatchController;
 use App\Http\Controllers\Api\OutstandingDispatchWithFreightCostController;
 use App\Http\Controllers\Api\OutstandingPiController;
 use App\Http\Controllers\Api\OutstandingDoController;
+use App\Http\Controllers\Api\OutstandingDoWithCostController;
+
+use App\Http\Controllers\Api\SalesInvoices;
 
 
 Route::get('/user', function (Request $request) {
@@ -183,5 +186,19 @@ Route::prefix('odoo')->group(function () {
 
     // Outstanding DO
     Route::get('outstanding-do', [OutstandingDoController::class, 'index']);
-    
+
+    // Outstanding DO With Cost
+    Route::get('outstanding-do-with-cost', [OutstandingDoWithCostController::class, 'index']);
+});
+
+
+
+
+Route::prefix('odoo')->group(function () {
+    Route::prefix('mye')->group(function () {
+        Route::get('/get/header-account-move', [SalesInvoices::class, 'AccountMove']);
+        Route::get('/get/detail-account-move-line', [SalesInvoices::class, 'AccountMoveLine']);
+        Route::get('/get/si', [SalesInvoices::class, 'ResultInvoiceSales']);
+    });
+
 });

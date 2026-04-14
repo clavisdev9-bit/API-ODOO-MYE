@@ -101,47 +101,91 @@ class OdooService
     // ---------------------------------------------------------------
     // Search & Read
     // ---------------------------------------------------------------
-    public function searchRead(
-        string $model,
-        array  $domain  = [],
-        array  $fields  = [],
-        // $limit dan $offset untuk pagination (0 = no limit tinggal sesuaikan misal $limit = 10 untuk 10 record per halaman)
-        int    $limit   = 10,
-        int    $offset  = 0
-    ): array {
-        $uid = $this->authenticate();
+    // public function searchRead(
+    //     string $model,
+    //     array  $domain  = [],
+    //     array  $fields  = [],
+    //     // $limit dan $offset untuk pagination (0 = no limit tinggal sesuaikan misal $limit = 10 untuk 10 record per halaman)
+    //     int    $limit   = 10,
+    //     int    $offset  = 0
+    // ): array {
+    //     $uid = $this->authenticate();
 
-        return $this->call('object', 'execute_kw', [
-            $this->db,
-            $uid,
-            $this->password,
-            $model,
-            'search_read',
-            [$this->encodeDomain($domain)],
-            [
-                'fields' => $fields,
-                'limit'  => $limit,
-                'offset' => $offset,
-            ],
-        ]);
-    }
+    //     return $this->call('object', 'execute_kw', [
+    //         $this->db,
+    //         $uid,
+    //         $this->password,
+    //         $model,
+    //         'search_read',
+    //         [$this->encodeDomain($domain)],
+    //         [
+    //             'fields' => $fields,
+    //             'limit'  => $limit,
+    //             'offset' => $offset,
+    //         ],
+    //     ]);
+    // }
+
+    public function searchRead(
+    string $model,
+    array  $domain = [],
+    array  $fields = [],
+    int    $limit = 10,
+    int    $offset = 0
+): array {
+    $uid = $this->authenticate();
+
+    return $this->call('object', 'execute_kw', [
+        $this->db,
+        $uid,
+        $this->password,
+        $model,
+        'search_read',
+        [
+            $domain // LANGSUNG array biasa
+        ],
+        [
+            'fields' => $fields,
+            'limit' => $limit,
+            'offset' => $offset,
+        ],
+    ]);
+}
+    
 
     // ---------------------------------------------------------------
     // Count
     // ---------------------------------------------------------------
-    public function searchCount(string $model, array $domain = []): int
-    {
-        $uid = $this->authenticate();
+    // public function searchCount(string $model, array $domain = []): int
+    // {
+    //     $uid = $this->authenticate();
 
-        return (int) $this->call('object', 'execute_kw', [
-            $this->db,
-            $uid,
-            $this->password,
-            $model,
-            'search_count',
-            [$this->encodeDomain($domain)],
-        ]);
-    }
+    //     return (int) $this->call('object', 'execute_kw', [
+    //         $this->db,
+    //         $uid,
+    //         $this->password,
+    //         $model,
+    //         'search_count',
+    //         [$this->encodeDomain($domain)],
+    //     ]);
+    // }
+
+
+    public function searchCount(string $model, array $domain = []): int
+{
+    $uid = $this->authenticate();
+
+    return (int) $this->call('object', 'execute_kw', [
+        $this->db,
+        $uid,
+        $this->password,
+        $model,
+        'search_count',
+        [
+            $domain
+        ],
+    ]);
+}
 
     // ---------------------------------------------------------------
     // Read by ID
