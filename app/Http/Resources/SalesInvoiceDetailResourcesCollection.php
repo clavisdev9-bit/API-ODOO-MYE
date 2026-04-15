@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class SalesInvoiceDetailResourcesCollection extends ResourceCollection
 {
-    public $collects = SalesInvoiceDetailResources::class;
+    public $collects = salesInvoiceDetailResources::class;
 
     protected int $total;
     protected int $limit;
@@ -46,7 +46,7 @@ class SalesInvoiceDetailResourcesCollection extends ResourceCollection
             : null;
 
         return [
-            'data' => SalesInvoiceDetailResources::collection($this->collection),
+            'data' => salesInvoiceDetailResources::collection($this->collection),
 
             'pagination' => [
                 'total'         => $this->total,
