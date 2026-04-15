@@ -28,9 +28,7 @@ class ApiResponse
         return response()->json([
             'success' => true,
             'message' => $message,
-            // 'data' => $collection,
             'data' =>  $collection->resolve(), 
-            
         ], $status);
     }
 }

@@ -196,9 +196,9 @@ Route::prefix('odoo')->group(function () {
 
 Route::prefix('odoo')->group(function () {
     Route::prefix('mye')->group(function () {
-        Route::get('/get/header-account-move', [SalesInvoices::class, 'AccountMove']);
-        Route::get('/get/detail-account-move-line', [SalesInvoices::class, 'AccountMoveLine']);
-        Route::get('/get/si', [SalesInvoices::class, 'ResultInvoiceSales']);
+        Route::get('/get/header/si', [SalesInvoices::class, 'AccountMove']);
+        Route::get('/get/detail/si', [SalesInvoices::class, 'AccountMoveLine']);
+        Route::get('/get/si', [SalesInvoices::class, 'CombinedInvoiceSales']);
     });
 
 });
