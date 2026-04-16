@@ -21,27 +21,60 @@ class salesInvoiceResourcesCollection extends ResourceCollection
         $this->offset = $offset;
     }
 
-    public function toArray(Request $request): array
-    {
-        $limit       = $this->limit > 0 ? $this->limit : 10;
-        $currentPage = (int) floor($this->offset / $limit) + 1;
-        $lastPage    = (int) ceil($this->total / $limit);
-        $baseUrl     = $request->url();
+    // public function toArray(Request $request): array
+    // {
+    //     $limit       = $this->limit > 0 ? $this->limit : 10;
+    //     $currentPage = (int) floor($this->offset / $limit) + 1;
+    //     $lastPage    = (int) ceil($this->total / $limit);
+    //     $baseUrl     = $request->url();
 
-        return [
-            'data'       => $this->collection,
-            'pagination' => [
-                'total'         => $this->total,
-                'per_page'      => $limit,
-                'current_page'  => $currentPage,
-                'last_page'     => $lastPage,
-                'next_page_url' => $currentPage < $lastPage 
-                    ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset + $limit]) 
-                    : null,
-                'prev_page_url' => $currentPage > 1 
-                    ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset - $limit]) 
-                    : null,
-            ],
-        ];
-    }
+    //     return [
+    //         'data'       => $this->collection,
+    //         'pagination' => [
+    //             'total'         => $this->total,
+    //             'per_page'      => $limit,
+    //             'current_page'  => $currentPage,
+    //             'last_page'     => $lastPage,
+    //             'next_page_url' => $currentPage < $lastPage 
+    //                 ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset + $limit]) 
+    //                 : null,
+    //             'prev_page_url' => $currentPage > 1 
+    //                 ? $baseUrl . '?' . http_build_query(['limit' => $limit, 'offset' => $this->offset - $limit]) 
+    //                 : null,
+    //         ],
+    //     ];
+    // }
+
+    public function toArray(Request $request): array
+{
+    $limit       = $this->limit > 0 ? $this->limit : 10;
+    $currentPage = (int) floor($this->offset / $limit) + 1;
+    $lastPage    = (int) ceil($this->total / $limit);
+    $baseUrl     = $request->url();
+
+    // Ambil semua query parameters yang ada saat ini (start_date, end_date, dll)
+    $currentQueries = $request->query();
+
+    return [
+        'data'       => $this->collection,
+        'pagination' => [
+            'total'         => $this->total,
+            'per_page'      => $limit,
+            'current_page'  => $currentPage,
+            'last_page'     => $lastPage,
+            'next_page_url' => $currentPage < $lastPage 
+                ? $baseUrl . '?' . http_build_query(array_merge($currentQueries, [
+                    'limit'  => $limit, 
+                    'offset' => $this->offset + $limit
+                ])) 
+                : null,
+            'prev_page_url' => $currentPage > 1 
+                ? $baseUrl . '?' . http_build_query(array_merge($currentQueries, [
+                    'limit'  => $limit, 
+                    'offset' => $this->offset - $limit
+                ])) 
+                : null,
+        ],
+    ];
+}
 }

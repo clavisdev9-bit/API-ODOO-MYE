@@ -199,6 +199,7 @@ Route::prefix('odoo')->group(function () {
         Route::get('/get/header/si', [SalesInvoices::class, 'AccountMove']);
         Route::get('/get/detail/si', [SalesInvoices::class, 'AccountMoveLine']);
         Route::get('/get/si', [SalesInvoices::class, 'CombinedInvoiceSales']);
+        Route::get('/sales-invoices/export', [SalesInvoices::class, 'ExportExcel']);
     });
 
 });
